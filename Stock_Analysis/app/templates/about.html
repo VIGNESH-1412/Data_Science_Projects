@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}About - StockPulse ML Project Architecture{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <!-- Header -->
+    <div class="space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/35 dark:border-violet-500/30 bg-violet-500/10 text-violet-600 dark:text-violet-400 text-xs font-semibold tracking-wider uppercase">
+            <i class="fas fa-microchip"></i> System Architecture
+        </div>
+        <h1 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white tracking-tight">About the Project</h1>
+        <p class="text-slate-600 dark:text-slate-400 font-light leading-relaxed">
+            StockPulse Stock Intelligence is a full-stack integration designed to bring machine learning out of experimental Jupyter Notebooks and into a high-fidelity interactive dashboard environment.
+        </p>
+    </div>
+
+    <!-- Core Pillars -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Dataset Panel -->
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl space-y-4">
+            <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg border border-purple-500/20">
+                <i class="fas fa-database"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white">Nifty 50 Dataset</h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm font-light leading-relaxed">
+                The underlying ML model was trained on the <strong>Indian Stock Market Data</strong> corpus. It consists of <strong>59,071 daily trading records</strong> spanning from April 2017 to January 2022. It covers 50 major public constituents (e.g., ADANIPORTS, WIPRO, RELIANCE, SBIN).
+            </p>
+        </div>
+
+        <!-- Model Panel -->
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl space-y-4">
+            <div class="h-10 w-10 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center text-lg border border-violet-500/20">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white">Random Forest Regressor</h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm font-light leading-relaxed">
+                We chose an ensemble <strong>Random Forest Regressor</strong> model. By training 100 decision trees on random data subsets, the model learns the highly structured correlations between a stock's daily Open, High, Low, Adjusted Close values, and its final trade Close price.
+            </p>
+        </div>
+    </div>
+
+    <!-- How it works flow -->
+    <div class="glass-panel p-6 sm:p-8 rounded-2xl space-y-6">
+        <h3 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+            <i class="fas fa-gears text-purple-600 dark:text-purple-400"></i> Execution Pipeline
+        </h3>
+        
+        <div class="space-y-6 relative border-l border-slate-200 dark:border-white/[0.06] pl-6 ml-3">
+            <!-- Step 1 -->
+            <div class="relative">
+                <div class="absolute -left-[31px] top-1.5 h-4.5 w-4.5 rounded-full bg-white dark:bg-slate-900 border-2 border-purple-500 dark:border-purple-400"></div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">1. Client Simulation Variable Tweaks</h4>
+                <p class="text-slate-600 dark:text-slate-400 text-xs font-light mt-1">Users select a constituent on the Dashboard. Form fields autofill with the last recorded stock data from the CSV. Users adjust sliders to simulate specific price shocks.</p>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="relative">
+                <div class="absolute -left-[31px] top-1.5 h-4.5 w-4.5 rounded-full bg-white dark:bg-slate-900 border-2 border-purple-500 dark:border-purple-400"></div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">2. API Serialization</h4>
+                <p class="text-slate-600 dark:text-slate-400 text-xs font-light mt-1">Payloads (Open, High, Low, Adj Close, Volume, Company Name) serialize to JSON and post to Flask API endpoint `/api/predict`.</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative">
+                <div class="absolute -left-[31px] top-1.5 h-4.5 w-4.5 rounded-full bg-white dark:bg-slate-900 border-2 border-purple-500 dark:border-purple-400"></div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">3. Joblib AI Inference</h4>
+                <p class="text-slate-600 dark:text-slate-400 text-xs font-light mt-1">Flask loads the pre-trained `Stock_Market_Analysis.joblib` model at startup. When invoked, it executes python inference, returning a single predicted floating point value representing the closing price.</p>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="relative">
+                <div class="absolute -left-[31px] top-1.5 h-4.5 w-4.5 rounded-full bg-white dark:bg-slate-900 border-2 border-purple-500 dark:border-purple-400"></div>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">4. SQLite Logging & UI Render</h4>
+                <p class="text-slate-600 dark:text-slate-400 text-xs font-light mt-1">Predictions log to local SQLite registers for history auditing. The frontend renders glowing results cards, trend directions, and dynamic error limits.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Code Block -->
+    <div class="glass-panel p-6 rounded-2xl space-y-4">
+        <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <i class="fas fa-code text-purple-600 dark:text-purple-400"></i> Model Inference Code
+        </h3>
+        <pre class="bg-slate-900/90 dark:bg-slate-950/80 p-4 rounded-xl border border-slate-200 dark:border-white/[0.05] overflow-x-auto text-[11px] font-mono text-purple-650 dark:text-purple-305 leading-relaxed">
+# app/model_loader.py (Excerpt)
+def predict_close(company_name, open_val, high_val, low_val, adj_close, volume):
+    model = load_model() # joblib.load('Stock_Market_Analysis.joblib')
+    comp_id = get_company_id(company_name) # Map string ticker to index 1-50
+    
+    input_data = pd.DataFrame({
+        'Open': [float(open_val)],
+        'High': [float(high_val)],
+        'Low': [float(low_val)],
+        'Adj Close': [float(adj_close)],
+        'Volume': [float(volume)],
+        'Company': [int(comp_id)]
+    })
+    
+    predicted_val = model.predict(input_data)[0]
+    return float(predicted_val)</pre>
+    </div>
+</div>
+{% endblock %}

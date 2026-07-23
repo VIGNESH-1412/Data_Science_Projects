@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}StockPulse Stock Intelligence - AI Predictions{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden py-20 lg:py-32">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            <!-- Left Column: Copy & CTAs -->
+            <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                <!-- Glowing Badge -->
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-semibold tracking-wider uppercase mx-auto lg:mx-0">
+                    <i class="fas fa-bolt animate-pulse"></i> Predictive Model Live
+                </div>
+                
+                <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none text-slate-800 dark:text-white">
+                    Simulate and Forecast <br>
+                    <span class="text-gradient">Stock Closings</span> <br>
+                    With AI Precision
+                </h1>
+                
+                <p class="text-base sm:text-lg text-slate-600 dark:text-slate-400 max-w-xl mx-auto lg:mx-0 font-light leading-relaxed">
+                    StockPulse integrates a high-accuracy RandomForest Regressor trained on 50 top-tier Indian stocks. Tweak trading parameters in real-time, simulate price changes, and analyze forecasted trends instantly.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4 pt-4">
+                    <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-indigo-650 px-6 py-3.5 text-base font-bold text-white shadow-xl hover:brightness-110 active:scale-95 transition-all">
+                        <i class="fas fa-microchip mr-2 text-purple-200"></i> Enter Prediction Lab
+                    </a>
+                    <a href="{{ url_for('main.analytics') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.02] hover:bg-slate-100 dark:hover:bg-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.15] px-6 py-3.5 text-base font-bold text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-chart-line mr-2 text-slate-400"></i> Explore Stock Analytics
+                    </a>
+                </div>
+
+                <!-- Live stats block -->
+                <div class="grid grid-cols-3 gap-6 pt-10 border-t border-slate-200 dark:border-white/[0.05] max-w-md mx-auto lg:mx-0 text-left">
+                    <div>
+                        <div class="font-display text-2xl font-bold text-slate-800 dark:text-white">99.99%</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Model R² Accuracy</div>
+                    </div>
+                    <div>
+                        <div class="font-display text-2xl font-bold text-slate-800 dark:text-white">59,000+</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Historical Records</div>
+                    </div>
+                    <div>
+                        <div class="font-display text-2xl font-bold text-slate-800 dark:text-white">50</div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">Indian Companies</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Interactive Graphic -->
+            <div class="lg:col-span-5 flex justify-center relative">
+                <!-- Decorative background glow -->
+                <div class="absolute inset-0 bg-gradient-to-tr from-purple-500/10 via-indigo-500/10 to-violet-500/10 blur-3xl rounded-3xl -z-10 scale-90"></div>
+                
+                <!-- Mock Glassmorphism Chart Panel -->
+                <div class="glass-panel p-6 rounded-3xl w-full max-w-md border border-slate-200/50 dark:border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.2)] space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
+                                REL
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">RELIANCE IND</h3>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">NSE: India</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                            <i class="fas fa-caret-up"></i> Active
+                        </span>
+                    </div>
+
+                    <!-- Mini Visual Chart -->
+                    <div class="h-32 flex items-end justify-between gap-2 px-1 relative">
+                        <div class="absolute top-2 left-2 text-[10px] text-slate-500 dark:text-slate-400 font-semibold">Live Simulation Mode</div>
+                        <!-- Decorative columns -->
+                        <div class="w-full bg-purple-500/10 rounded-t h-[40%]"></div>
+                        <div class="w-full bg-purple-500/20 rounded-t h-[55%]"></div>
+                        <div class="w-full bg-purple-500/15 rounded-t h-[35%]"></div>
+                        <div class="w-full bg-purple-500/35 rounded-t h-[70%]"></div>
+                        <div class="w-full bg-purple-500/40 rounded-t h-[85%]"></div>
+                        <div class="w-full bg-gradient-to-t from-purple-500 to-indigo-500 rounded-t h-[95%] shadow-[0_0_15px_rgba(168,85,247,0.4)]"></div>
+                    </div>
+
+                    <!-- Simulator details card -->
+                    <div class="rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200/50 dark:border-white/[0.04] p-4 space-y-3">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">Open Price</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200">₹2,380.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-500 dark:text-slate-400">Adjusted Close</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200">₹2,374.50</span>
+                        </div>
+                        <div class="h-[1px] bg-slate-200 dark:bg-white/[0.06] w-full"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Predicted Close (AI)</span>
+                            <span class="text-sm font-extrabold text-purple-600 dark:text-purple-400">₹2,386.42</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid Section -->
+<section class="py-20 bg-slate-50/50 dark:bg-white/[0.01] border-t border-b border-slate-200 dark:border-white/[0.04] relative">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center max-w-3xl mx-auto space-y-4 mb-16">
+            <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white">
+                Powered by Advanced Machine Learning
+            </h2>
+            <p class="text-slate-600 dark:text-slate-400 font-light text-sm sm:text-base">
+                StockPulse isn't a mock interface. It wraps a fully fitted Random Forest Regressor model directly with dynamic parameter configurations.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card 1 -->
+            <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-4">
+                <div class="h-12 w-12 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl border border-purple-500/20">
+                    <i class="fas fa-sliders-h"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Dynamic Sliders</h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-light leading-relaxed">
+                    Adjust Open, High, Low, and trading Volume dynamically using range sliders tailored to each stock's historical limits.
+                </p>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-4">
+                <div class="h-12 w-12 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl border border-indigo-500/20">
+                    <i class="fas fa-chart-area"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Candlestick Charts</h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-light leading-relaxed">
+                    Visualize historical trends directly using advanced interactive candlesticks and trading volume bar graphs.
+                </p>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-4">
+                <div class="h-12 w-12 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xl border border-violet-500/20">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Simulation History</h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-light leading-relaxed">
+                    Save your parameter test runs directly into a local SQLite database history register for auditing.
+                </p>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="glass-panel p-6 rounded-2xl glass-panel-hover space-y-4">
+                <div class="h-12 w-12 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center text-xl border border-pink-500/20">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white">Model Specs Inside</h3>
+                <p class="text-slate-600 dark:text-slate-400 text-sm font-light leading-relaxed">
+                    Inspect random forest parameters, feature weights, standard error metrics, and validation logs easily.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="py-20 lg:py-24 relative overflow-hidden">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+        <div class="glass-panel p-8 sm:p-12 lg:p-16 rounded-3xl border border-slate-200/50 dark:border-white/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.05)] dark:shadow-2xl relative overflow-hidden">
+            <!-- Floating light ball -->
+            <div class="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-purple-500/20 blur-3xl"></div>
+            
+            <div class="max-w-2xl mx-auto space-y-6 relative z-10">
+                <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-800 dark:text-white leading-tight">
+                    Ready to Test the AI Predictive Engine?
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 font-light text-sm sm:text-base">
+                    Select from 50 blue-chip Indian stocks, slide transaction inputs to simulate scenarios, and hit run.
+                </p>
+                <div class="pt-4">
+                    <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-500 via-violet-600 to-indigo-600 px-8 py-4 text-base font-bold text-white shadow-xl hover:brightness-110 active:scale-95 transition-all">
+                        Launch Prediction Terminal <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}StockPulse Financial Analytics - Candlestick & Volume Charts{% endblock %}
+
+{% block head %}
+<!-- ApexCharts CDN -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock %}
+
+{% block content %}
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+            <h1 class="font-display text-3xl font-extrabold text-slate-800 dark:text-white tracking-tight">Market Analytics Hub</h1>
+            <p class="text-sm text-slate-600 dark:text-slate-400 font-light">Interactive candlestick models, trade volumes, and statistics for 50 companies.</p>
+        </div>
+        
+        <!-- Stock Selector -->
+        <div class="w-full md:w-80">
+            <label for="analytics-company-select" class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Select Company</label>
+            <div class="relative">
+                <select id="analytics-company-select" class="w-full rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-slate-900/60 backdrop-blur-md px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-200 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all appearance-none cursor-pointer shadow-sm">
+                    <option value="" disabled selected>Search / Select Company...</option>
+                    {% for company in companies %}
+                    <option value="{{ company }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-slate-500 dark:text-slate-400">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="analytics-loading" class="hidden glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center min-h-[500px]">
+        <div class="loader-spinner mb-4"></div>
+        <h3 class="text-slate-800 dark:text-slate-300 font-bold">Synchronizing Markets</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Retrieving trading dates and volume distributions...</p>
+    </div>
+
+    <!-- Empty State -->
+    {% if not active_company %}
+    <div id="analytics-empty" class="glass-panel p-16 rounded-2xl flex flex-col items-center justify-center text-center min-h-[500px] border border-slate-200 dark:border-white/[0.06] shadow-2xl">
+        <div class="h-16 w-16 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05] flex items-center justify-center text-slate-400 dark:text-slate-500 text-2xl mb-4">
+            <i class="fas fa-chart-line animate-pulse"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-700 dark:text-slate-300">Market Visualizer Standby</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mt-2 leading-relaxed">Choose an Indian stock ticker from the selector dropdown to build live chart models and statistics.</p>
+    </div>
+    {% endif %}
+
+    <!-- Analytics Dashboard View -->
+    <div id="analytics-content" class="hidden space-y-8">
+        <!-- Stats Summary Banner -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Company -->
+            <div class="glass-panel p-5 rounded-xl border border-slate-200/50 dark:border-white/[0.05]">
+                <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-1">Stock Ticker</div>
+                <div id="stat-company-name" class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">-</div>
+            </div>
+            
+            <!-- Recent Close -->
+            <div class="glass-panel p-5 rounded-xl border border-slate-200/50 dark:border-white/[0.05]">
+                <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-1">Last Trade Value</div>
+                <div class="flex items-center gap-2">
+                    <span id="stat-recent-close" class="text-xl font-extrabold text-slate-800 dark:text-white tracking-tight">-</span>
+                    <span id="stat-price-trend" class="text-xs font-bold rounded-full"></span>
+                </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="glass-panel p-5 rounded-xl border border-slate-200/50 dark:border-white/[0.05]">
+                <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-1">90-Day Range</div>
+                <div id="stat-price-range" class="text-sm font-bold text-slate-700 dark:text-slate-200 mt-1">-</div>
+            </div>
+
+            <!-- Average Volume -->
+            <div class="glass-panel p-5 rounded-xl border border-slate-200/50 dark:border-white/[0.05]">
+                <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-widest uppercase mb-1">Average Share Volume</div>
+                <div id="stat-avg-volume" class="text-sm font-bold text-slate-700 dark:text-slate-200 mt-1">-</div>
+            </div>
+        </div>
+
+        <!-- Candlestick Price Plot -->
+        <div class="glass-panel p-6 rounded-2xl border border-slate-200/50 dark:border-white/[0.05]">
+            <div id="price-chart-container" class="w-full"></div>
+        </div>
+
+        <!-- Volume Bar Plot -->
+        <div class="glass-panel p-6 rounded-2xl border border-slate-200/50 dark:border-white/[0.05]">
+            <div id="volume-chart-container" class="w-full"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StockPulse Stock Intelligence{% endblock %}</title>
+    
+    <!-- Meta tags for SEO -->
+    <meta name="description" content="AI-powered stock analysis and predictive forecasting platform for Indian Stock Market. Leverage machine learning algorithms to simulate and forecast closing prices.">
+    <meta name="author" content="Subramanian">
+    <meta name="theme-color" content="#080B11">
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#080B11',
+                        glassBg: 'rgba(15, 19, 30, 0.6)',
+                        panelBorder: 'rgba(255, 255, 255, 0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+    <!-- Animated background radial flows -->
+    <div class="gradient-bg"></div>
+    <div class="absolute top-[20%] left-[60%] w-[500px] h-[500px] rounded-full bg-purple-500/5 blur-[120px] pointer-events-none glow-pulse"></div>
+    <div class="absolute bottom-[10%] left-[10%] w-[600px] h-[600px] rounded-full bg-indigo-600/5 blur-[150px] pointer-events-none glow-pulse" style="animation-delay: 1.5s;"></div>
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-200/50 dark:border-white/[0.06] glass-panel transition-all">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+            <!-- Brand Logo -->
+            <a href="{{ url_for('main.index') }}" class="flex items-center gap-2.5">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-500 via-violet-600 to-indigo-600 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                    <i class="fas fa-chart-line text-white text-lg"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-display text-lg font-bold tracking-tight text-slate-800 dark:text-white leading-none">StockPulse</span>
+                    <span class="text-[10px] font-semibold tracking-widest text-purple-600 dark:text-purple-400 uppercase mt-0.5">Intelligence</span>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-8">
+                <a href="{{ url_for('main.index') }}" class="text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors {% if request.path == '/' %}text-purple-600 dark:text-purple-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">Landing</a>
+                <a href="{{ url_for('main.dashboard') }}" class="text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors {% if request.path == '/dashboard' %}text-purple-600 dark:text-purple-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">Prediction Lab</a>
+                <a href="{{ url_for('main.analytics') }}" class="text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors {% if request.path == '/analytics' %}text-purple-600 dark:text-purple-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">Analytics</a>
+                <a href="{{ url_for('main.model_info') }}" class="text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors {% if request.path == '/model' %}text-purple-600 dark:text-purple-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">Model Specs</a>
+                <a href="{{ url_for('main.about') }}" class="text-sm font-medium hover:text-purple-600 dark:hover:text-purple-400 transition-colors {% if request.path == '/about' %}text-purple-600 dark:text-purple-400{% else %}text-slate-600 dark:text-slate-300{% endif %}">About</a>
+            </nav>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="p-2.5 rounded-xl border border-slate-200 dark:border-white/[0.05] bg-slate-100 dark:bg-white/[0.02] hover:bg-slate-200 dark:hover:bg-white/[0.05] transition-colors" title="Toggle Light/Dark Theme">
+                    <i id="theme-icon" class="fas fa-sun text-yellow-400 hover:text-yellow-300"></i>
+                </button>
+
+                <!-- Primary CTA -->
+                <a href="{{ url_for('main.dashboard') }}" class="hidden sm:inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-indigo-650 px-4 py-2 text-sm font-semibold text-white shadow-lg hover:brightness-110 active:scale-95 transition-all">
+                    Launch Simulator
+                </a>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav" class="hidden md:hidden fixed inset-x-0 top-16 bg-white/95 dark:bg-[#0c101b]/95 backdrop-blur-lg border-b border-slate-200 dark:border-white/[0.06] z-30 px-6 py-6 flex flex-col gap-4">
+        <a href="{{ url_for('main.index') }}" class="text-lg font-medium border-b border-slate-100 dark:border-white/[0.03] pb-2 text-slate-700 dark:text-slate-300">Home</a>
+        <a href="{{ url_for('main.dashboard') }}" class="text-lg font-medium border-b border-slate-100 dark:border-white/[0.03] pb-2 text-slate-700 dark:text-slate-300">Prediction Lab</a>
+        <a href="{{ url_for('main.analytics') }}" class="text-lg font-medium border-b border-slate-100 dark:border-white/[0.03] pb-2 text-slate-700 dark:text-slate-300">Analytics</a>
+        <a href="{{ url_for('main.model_info') }}" class="text-lg font-medium border-b border-slate-100 dark:border-white/[0.03] pb-2 text-slate-700 dark:text-slate-300">Model Specs</a>
+        <a href="{{ url_for('main.about') }}" class="text-lg font-medium border-b border-slate-100 dark:border-white/[0.03] pb-2 text-slate-700 dark:text-slate-300">About</a>
+        <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-purple-600 to-indigo-650 py-3 font-semibold text-white shadow-lg mt-2">
+            Launch Simulator
+        </a>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Premium Footer -->
+    <footer class="border-t border-slate-200/50 dark:border-white/[0.06] bg-slate-100/80 dark:bg-[#06080d]/80 backdrop-blur-md py-12 mt-auto">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-b border-slate-200/50 dark:border-white/[0.05] pb-8">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-purple-500 via-violet-600 to-indigo-650">
+                        <i class="fas fa-chart-line text-white"></i>
+                    </div>
+                    <span class="font-display text-lg font-bold text-slate-800 dark:text-white tracking-tight">STOCKPULSE INTELLIGENCE</span>
+                </div>
+
+                <!-- Footer Nav Links -->
+                <div class="flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+                    <a href="{{ url_for('main.index') }}" class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Home</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Prediction Dashboard</a>
+                    <a href="{{ url_for('main.analytics') }}" class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Analytics</a>
+                    <a href="{{ url_for('main.model_info') }}" class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">Model Specifications</a>
+                    <a href="{{ url_for('main.about') }}" class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">About Project</a>
+                </div>
+            </div>
+
+            <!-- Copy info -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 text-xs text-slate-400 dark:text-slate-500">
+                <p>&copy; 2026 StockPulse Stock Intelligence. All rights reserved. Portfolio Machine Learning Project.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300"><i class="fab fa-github text-base"></i></a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300"><i class="fab fa-linkedin text-base"></i></a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300"><i class="fab fa-twitter text-base"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global JavaScript File -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
