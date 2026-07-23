@@ -1,0 +1,95 @@
+HOUSEWORTH AI — PROJECT SUMMARY
+================================
+
+WHAT IT IS
+----------
+HouseWorth AI is a house price prediction project. You feed it details about
+a house (bedrooms, bathrooms, size, grade, location, etc.) and it predicts
+what the house should sell for. It's built on a real King County (Seattle)
+housing dataset and shipped as a working Streamlit web app.
+
+THE DATA
+--------
+- 21,613 house sale records, 21 columns
+- No missing values, no duplicates after cleanup
+- Dropped id and date columns since they don't help predict price
+- About 5.3% of rows (1,146) were price outliers — mostly genuine high-end
+  homes, not bad data, so they were kept rather than deleted
+
+WHAT WAS EXPLORED
+------------------
+- Correlation with price: sqft_living, grade, sqft_above, and sqft_living15
+  came out as the strongest linked to price
+- Visualized price distribution, price vs living area, price vs grade,
+  price vs year built
+- Built a correlation heatmap across all numeric features
+
+NEW FEATURES CREATED
+---------------------
+1. FamilyFriendlyHome — flags homes with 3+ bedrooms, 2+ bathrooms, and
+   1800+ sqft living space
+2. ModernHome — flags homes built in 2000 or later, or renovated
+3. SpaciousHome — a 0/1/2 scale based on how big the living space is
+
+THE MODELS
+----------
+Two models were trained and compared:
+
+  Random Forest (1500 trees)
+    Train R²: 0.983   Test R²: 0.858
+    MAE: ~72,343   RMSE: ~146,258
+
+  XGBoost (300 trees, learning rate 0.05, depth 6)
+    Train R²: 0.964   Test R²: 0.883
+    MAE: ~68,787   RMSE: ~132,891
+
+XGBoost was the better model. It scored higher on test data AND had a
+smaller gap between its train and test scores, meaning it's less
+overfit and more reliable on new houses it hasn't seen. This is the
+model that got saved and used in the app.
+
+Being honest here: Random Forest's near-perfect train score (0.983) next
+to its noticeably lower test score (0.858) is a sign of overfitting.
+XGBoost isn't perfect either, but it's the more trustworthy of the two.
+
+WHAT ACTUALLY DRIVES PRICE
+----------------------------
+According to the XGBoost model, in order of importance:
+  1. Grade (build/design quality) — 39.5%, by far the biggest factor
+  2. Living area (sqft_living) — 16%
+  3. Waterfront — 13%
+  4. Latitude (location) — 7%
+  5. View, longitude, year built, sqft_living15, bathrooms — smaller effects
+
+Interesting takeaway: bedroom count and lot size barely matter. Quality of
+build and actual usable space matter far more than how many rooms a house
+has on paper.
+
+THE APP
+-------
+A Streamlit app (app.py) with a custom-styled landing page (light,
+minimalist "blueprint" theme, Space Grotesk + JetBrains Mono fonts) built
+in HTML and embedded through streamlit.components.v1. The landing page's
+buttons use query parameters to route into the actual prediction form,
+which takes all the house features and runs them through the saved
+XGBoost model to return a price estimate.
+
+HONEST GAPS
+------------
+- No scaler was saved alongside the model. Not a problem for XGBoost, but
+  would matter if the model ever gets swapped for something like linear
+  regression.
+- The app's expected feature list includes a few engineered columns
+  (house_age, is_renovated, total_rooms, total_sqft) that need to be
+  added as a feature-engineering step before training, to keep the app
+  and the model in sync.
+- Outliers were studied but not removed, so a handful of very expensive
+  homes still influence the model's predictions.
+- Test R² of 0.88 is decent, not outstanding — this kind of dataset
+  usually needs geography-aware features (distance to city center,
+  nearby schools, etc.) to get meaningfully more accurate.
+
+TECH USED
+---------
+Python, Pandas, NumPy, Matplotlib, Seaborn, Scikit-learn (Random Forest),
+XGBoost, Streamlit, Pickle
