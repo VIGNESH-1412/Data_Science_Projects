@@ -1,0 +1,11 @@
+age,gender,bmi,gcs_motor_apache,gcs_eyes_apache,gcs_verbal_apache,d1_heartrate_min,d1_heartrate_max,d1_sysbp_min,d1_mbp_min,d1_spo2_min,d1_resprate_max,d1_temp_min,d1_temp_max,d1_lactate_min,d1_lactate_max,d1_albumin_min,ph_apache,d1_arterial_ph_min,d1_bun_max,d1_creatinine_max,d1_platelets_min,d1_wbc_max,d1_glucose_max,d1_sodium_min,apache_2_diagnosis,apache_3j_bodysystem,icu_admit_source,apache_4a_hospital_death_prob,apache_4a_icu_death_prob,aids,cirrhosis,hepatic_failure,immunosuppression,leukemia,lymphoma,solid_tumor_with_metastasis,diabetes_mellitus,arf_apache,ventilated_apache,elective_surgery,apache_post_operative,hospital_death
+69,F,45.7,3,4,3,38,160,93,79,100,5,34.8,35.3,0.9,,4.2,,7.43,10.3,1.3,129,18.4,319,152.8,353,Neurological,Accident & Emergency,0.059,0.014,0,0,0,0,0,0,0,0,0,0,1,0,0
+59,M,27.7,2,1,3,76,84,117,74,88,16,35.8,36.6,0.6,1.3,3.4,7.37,7.02,1.4,0.89,251,4.9,199,145.4,98,Musculoskeletal/Skin,Other Hospital,0.487,0.444,0,0,0,0,0,0,0,0,0,0,0,1,1
+72,F,34.8,6,1,1,46,112,128,71,89,18,38.4,41.1,0.8,1.2,4.2,7.41,7.17,5.4,0.72,116,10.6,101,144.2,647,Gynecological,Accident & Emergency,0.287,0.22,0,0,0,0,0,0,0,0,0,0,0,0,1
+86,F,28.6,4,2,4,61,70,88,86,94,10,37.2,37.3,,3.0,3.0,7.34,,2.5,1.44,142,11.8,137,137.6,348,Gynecological,Operating Room / Recovery,0.17,0.24,0,0,0,1,0,0,0,0,0,0,1,0,0
+58,F,30.5,6,3,4,87,106,192,52,94,18,35.5,36.1,1.0,2.5,3.0,7.25,,2.1,0.42,209,2.8,66,142.4,513,Gynecological,Other Hospital,0.281,0.233,0,0,0,0,1,0,0,0,0,0,1,0,0
+58,M,24.6,6,2,5,55,70,130,59,90,11,35.6,35.7,1.2,,0.8,7.24,7.1,3.2,1.47,53,11.5,126,142.9,198,Gynecological,Other ICU,0.198,0.079,0,0,1,0,0,0,0,0,0,0,0,0,0
+87,F,28.4,4,4,5,52,90,103,72,100,13,34.8,37.0,2.0,2.3,,7.25,7.34,4.7,2.44,281,7.9,137,130.0,673,Hematological,Other Hospital,0.331,0.165,0,0,0,0,0,0,0,0,0,0,0,1,0
+74,F,30.8,3,1,5,120,121,89,50,89,23,37.6,37.7,2.7,,,7.27,7.18,3.0,0.78,83,11.1,110,139.9,308,Respiratory,Other ICU,0.161,0.046,0,0,0,0,0,0,0,0,0,0,0,0,0
+54,F,23.0,5,3,4,53,77,112,99,91,37,37.8,37.9,7.8,2.8,,7.8,7.23,2.1,0.91,88,16.3,123,137.5,95,Respiratory,Floor,0.154,0.051,0,0,0,0,0,0,0,0,0,0,1,0,0
+70,M,26.5,2,2,5,107,142,73,59,81,11,34.0,37.3,2.1,0.5,1.2,7.43,,3.5,0.95,90,10.1,243,138.2,574,Neurological,Other ICU,0.027,0.222,0,0,0,0,0,0,0,1,0,0,0,0,1
