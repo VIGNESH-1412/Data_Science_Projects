@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container result-container">
+        <h1>Prediction Result</h1>
+        
+        <div class="result-card {% if result.prediction == 1 %}high-risk{% else %}low-risk{% endif %}">
+            <h2>Status: {{ result.status }}</h2>
+            <p class="probability">Probability of Readmission: {{ "%.2f"|format(result.probability * 100) }}%</p>
+            
+            <div class="message">
+                {% if result.prediction == 1 %}
+                <p>⚠️ This patient is at <strong>HIGH RISK</strong> of readmission. Intensive follow-up and medication reconciliation are recommended.</p>
+                {% else %}
+                <p>✅ This patient is at <strong>LOW RISK</strong> of readmission. Standard discharge procedures apply.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="/" class="btn btn-secondary">Predict Another Patient</a>
+        </div>
+    </div>
+</body>
+</html>

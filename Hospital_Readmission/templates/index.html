@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Readmission Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Hospital Readmission Predictor</h1>
+        <p>Enter patient information to predict the likelihood of readmission within 30 days.</p>
+        
+        <form action="/predict" method="post">
+            <div class="form-grid">
+                <!-- Demographic Info -->
+                <div class="form-section">
+                    <h3>Demographics</h3>
+                    <div class="form-group">
+                        <label for="Age">Age:</label>
+                        <input type="number" name="Age" id="Age" required min="0" max="120" value="65">
+                    </div>
+                    <div class="form-group">
+                        <label for="Gender">Gender:</label>
+                        <select name="Gender" id="Gender">
+                            <option value="0">Female</option>
+                            <option value="1">Male</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="BMI">BMI:</label>
+                        <input type="number" name="BMI" id="BMI" required min="10" max="60" value="25">
+                    </div>
+                    <div class="form-group">
+                        <label for="Smoking_Status">Smoking Status:</label>
+                        <select name="Smoking_Status" id="Smoking_Status">
+                            <option value="0">Never Smoked</option>
+                            <option value="1">Former Smoker</option>
+                            <option value="2">Current Smoker</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Clinical Info -->
+                <div class="form-section">
+                    <h3>Clinical Details</h3>
+                    <div class="form-group">
+                        <label for="Admission_Type">Admission Type (1-8):</label>
+                        <input type="number" name="Admission_Type" id="Admission_Type" required min="1" max="8" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="Primary_Diagnosis">Primary Diagnosis (0-8):</label>
+                        <input type="number" name="Primary_Diagnosis" id="Primary_Diagnosis" required min="0" max="8" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="Length_of_Stay">Length of Stay (days):</label>
+                        <input type="number" name="Length_of_Stay" id="Length_of_Stay" required min="1" max="30" value="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="Number_Diagnoses">Number of Diagnoses:</label>
+                        <input type="number" name="Number_Diagnoses" id="Number_Diagnoses" required min="1" max="16" value="5">
+                    </div>
+                </div>
+
+                <!-- Procedures & Meds -->
+                <div class="form-section">
+                    <h3>Procedures & Medications</h3>
+                    <div class="form-group">
+                        <label for="Num_Lab_Procedures">Num Lab Procedures:</label>
+                        <input type="number" name="Num_Lab_Procedures" id="Num_Lab_Procedures" required min="1" max="150" value="40">
+                    </div>
+                    <div class="form-group">
+                        <label for="Num_Medications">Num Medications:</label>
+                        <input type="number" name="Num_Medications" id="Num_Medications" required min="1" max="100" value="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="Num_Procedures">Num Procedures:</label>
+                        <input type="number" name="Num_Procedures" id="Num_Procedures" required min="0" max="10" value="2">
+                    </div>
+                    <div class="form-group">
+                        <label for="Medication_Adherence_Score">Medication Adherence (0-100):</label>
+                        <input type="number" name="Medication_Adherence_Score" id="Medication_Adherence_Score" required min="0" max="100" value="80">
+                    </div>
+                </div>
+
+                <!-- Visits & Billing -->
+                <div class="form-section">
+                    <h3>Visits & Billing</h3>
+                    <div class="form-group">
+                        <label for="Number_Outpatient_Visits">Outpatient Visits:</label>
+                        <input type="number" name="Number_Outpatient_Visits" id="Number_Outpatient_Visits" required min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="Number_Emergency_Visits">Emergency Visits:</label>
+                        <input type="number" name="Number_Emergency_Visits" id="Number_Emergency_Visits" required min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="Number_Inpatient_Visits">Inpatient Visits:</label>
+                        <input type="number" name="Number_Inpatient_Visits" id="Number_Inpatient_Visits" required min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="Billing_Amount">Billing Amount ($):</label>
+                        <input type="number" name="Billing_Amount" id="Billing_Amount" required min="0" value="5000">
+                    </div>
+                </div>
+
+                <!-- Other -->
+                <div class="form-section">
+                    <h3>Other Factors</h3>
+                    <div class="form-group">
+                        <label for="Insurance_Type">Insurance Type (0-3):</label>
+                        <input type="number" name="Insurance_Type" id="Insurance_Type" required min="0" max="3" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="Discharge_Disposition">Discharge Disposition (0-9):</label>
+                        <input type="number" name="Discharge_Disposition" id="Discharge_Disposition" required min="0" max="9" value="1">
+                    </div>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="Has_Diabetes" value="1"> Has Diabetes</label>
+                        <label><input type="checkbox" name="Has_Hypertension" value="1"> Has Hypertension</label>
+                        <label><input type="checkbox" name="Has_Heart_Disease" value="1"> Has Heart Disease</label>
+                        <label><input type="checkbox" name="Has_Kidney_Disease" value="1"> Has Kidney Disease</label>
+                        <label><input type="checkbox" name="Follow_Up_Scheduled" value="1" checked> Follow-Up Scheduled</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="submit-container">
+                <button type="submit" class="btn">Predict Readmission</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
