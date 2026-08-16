@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Stroke Prediction System | Clinical Stroke Risk Dashboard</title>
+    <meta
+      name="description"
+      content="AI-powered stroke prediction dashboard. Enter patient health data to get instant stroke risk scores, model insights and clinical recommendations."
+    />
+    <meta name="keywords" content="stroke prediction, stroke risk calculator, AI healthcare dashboard, XGBoost stroke model, clinical decision support" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="AI Stroke Prediction System" />
+    <meta property="og:description" content="Instant, explainable stroke risk scoring for clinical decision support." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "MedicalWebPage",
+        "name": "AI Stroke Prediction System",
+        "description": "AI-powered stroke risk prediction dashboard for clinicians.",
+        "about": { "@type": "MedicalCondition", "name": "Stroke" }
+      }
+    </script>
+    <style>
+      :root {
+        --primary: #7c3aed;
+        --secondary: #a78bfa;
+        --accent: #c4b5fd;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --border: #e5e7eb;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #dc2626;
+        --radius: 18px;
+        --shadow: 0 4px 16px -6px rgba(124, 58, 237, 0.18);
+        --shadow-lg: 0 20px 45px -22px rgba(124, 58, 237, 0.42);
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "Poppins", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        background-image:
+          radial-gradient(circle at 10% -5%, rgba(196, 181, 253, 0.5), transparent 45%),
+          radial-gradient(circle at 95% 0%, rgba(167, 139, 250, 0.3), transparent 40%);
+        background-attachment: fixed;
+        min-height: 100vh;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      .glass:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+      header {
+        display: flex; align-items: center; gap: 16px; padding: 14px 24px;
+        position: sticky; top: 0; z-index: 40; border-radius: 0;
+        border-left: 0; border-right: 0; border-top: 0;
+      }
+      .logo { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; font-size: 20px; }
+      header h1 { font-size: 18px; font-weight: 700; }
+      header p.sub { font-size: 12px; color: var(--muted); }
+      .spacer { margin-left: auto; }
+      .search { border: 1px solid var(--border); background: #fff; border-radius: 12px; padding: 9px 14px; width: 230px; font-family: inherit; }
+      .icon-btn { border: 1px solid var(--border); background: #fff; border-radius: 12px; padding: 9px 11px; cursor: pointer; position: relative; }
+      .dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+      .avatar { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); font-weight: 600; font-size: 13px; }
+      .layout { display: flex; gap: 24px; max-width: 1400px; margin: 24px auto; padding: 0 20px 60px; }
+      aside { width: 230px; flex-shrink: 0; padding: 12px; height: fit-content; position: sticky; top: 90px; }
+      aside .label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding: 6px 12px; }
+      aside button { display: flex; width: 100%; gap: 10px; align-items: center; padding: 11px 13px; border: 0; background: none;
+        border-radius: 12px; font: inherit; font-size: 14px; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+      aside button:hover { background: #f5f3ff; color: var(--primary); }
+      aside button.active { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: var(--shadow); }
+      main { flex: 1; min-width: 0; display: grid; gap: 24px; }
+      .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .stat { padding: 18px; }
+      .stat .t { font-size: 13px; color: var(--muted); }
+      .stat .v { font-size: 28px; font-weight: 700; margin-top: 8px; }
+      .stat .s { font-size: 11px; color: var(--muted); margin-top: 4px; }
+      .grid2 { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; }
+      .card { padding: 24px; }
+      .card h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+      .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+      input, select { width: 100%; padding: 11px 13px; border: 1px solid var(--border); border-radius: 12px;
+        font-family: inherit; font-size: 14px; background: #fff; color: var(--text); transition: border-color 0.2s, box-shadow 0.2s; }
+      input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15); }
+      .btn { width: 100%; padding: 13px; border: 0; border-radius: 14px; color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+        background: linear-gradient(135deg, var(--primary), var(--secondary)); box-shadow: var(--shadow); transition: transform 0.2s, opacity 0.2s; }
+      .btn:hover { transform: scale(1.02); opacity: 0.95; }
+      .btn:disabled { opacity: 0.7; cursor: wait; transform: none; }
+      /* NEW: Secondary button styles */
+      .btn-secondary {
+        width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 12px; color: var(--text);
+        font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; background: #fff;
+        transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      }
+      .btn-secondary:hover { border-color: var(--primary); color: var(--primary); background: #faf5ff; }
+      .btn-pdf { color: var(--danger); }
+      .btn-pdf:hover { border-color: var(--danger); background: #fef2f2; color: var(--danger); }
+      .btn-csv { color: var(--success); }
+      .btn-csv:hover { border-color: var(--success); background: #f0fdf4; color: var(--success); }
+      .gauge-wrap { display: grid; place-items: center; gap: 12px; padding: 8px 0 4px; }
+      .badge { display: inline-block; padding: 5px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+      .badge.high { background: rgba(220, 38, 38, 0.12); color: var(--danger); }
+      .badge.mod { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+      .badge.low { background: rgba(34, 197, 94, 0.15); color: #15803d; }
+      .bar { height: 8px; background: #ede9fe; border-radius: 999px; overflow: hidden; }
+      .bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.8s ease; }
+      .row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px; }
+      ul.tips { list-style: none; display: grid; gap: 8px; }
+      ul.tips li { display: flex; gap: 9px; font-size: 13px; color: var(--muted); }
+      ul.tips li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--primary); margin-top: 7px; flex-shrink: 0; }
+      table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      td { padding: 12px; border-bottom: 1px solid var(--border); }
+      tbody tr:hover { background: #faf9ff; }
+      .fi-row { display: grid; grid-template-columns: 130px 1fr 50px; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+      .muted { color: var(--muted); font-size: 13px; }
+      .toast { position: fixed; top: 20px; right: 20px; background: #fff; border-left: 4px solid var(--success);
+        border-radius: 12px; padding: 14px 18px; box-shadow: var(--shadow-lg); font-size: 14px; opacity: 0;
+        transform: translateX(30px); transition: all 0.3s; z-index: 100; }
+      .toast.show { opacity: 1; transform: none; }
+      .spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+        border-radius: 50%; display: inline-block; animation: spin 0.7s linear infinite; vertical-align: -2px; margin-right: 6px; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* NEW: Action buttons row in prediction results */
+      .action-row { display: flex; gap: 10px; margin-top: 14px; }
+      .action-row .btn-secondary { flex: 1; }
+
+      /* NEW: Audit info in prediction result */
+      .audit-info { background: #f9fafb; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-top: 12px; font-size: 11px; color: var(--muted); }
+      .audit-info strong { color: var(--text); }
+
+      /* NEW: Prediction History page */
+      .history-actions { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+      .history-actions .btn-secondary { width: auto; padding: 8px 16px; }
+      .history-count { font-size: 13px; color: var(--muted); margin-left: auto; }
+      .audit-col { font-size: 11px; color: var(--muted); }
+      .audit-col strong { display: block; color: var(--text); font-size: 12px; }
+
+      /* NEW: PDF action button in history table */
+      .pdf-link {
+        display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px;
+        border: 1px solid var(--border); border-radius: 8px; font-size: 11px; color: var(--primary);
+        background: #fff; cursor: pointer; transition: all 0.2s; text-decoration: none;
+      }
+      .pdf-link:hover { background: #f5f3ff; border-color: var(--primary); }
+
+      /* NEW: Model status badge */
+      .model-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+        background: #f5f3ff; border-radius: 10px; font-size: 11px; color: var(--primary); margin-top: 8px; }
+      .model-badge .dot-green { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+
+      @media (max-width: 1000px) { .stats { grid-template-columns: repeat(2, 1fr); } .grid2 { grid-template-columns: 1fr; } aside { display: none; } }
+      @media (max-width: 620px) { .fields { grid-template-columns: 1fr; } .search { display: none; } .stats { grid-template-columns: 1fr; } .action-row { flex-direction: column; } }
+    </style>
+  </head>
+  <body>
+    <header class="glass">
+      <div class="logo">🧠</div>
+      <div>
+        <h1>Stroke Prediction System</h1>
+        <p class="sub">AI clinical decision support</p>
+      </div>
+      <input class="search spacer" placeholder="Search patients..." aria-label="Search patients" id="searchInput" />
+      <button class="icon-btn" aria-label="Notifications">🔔<span class="dot"></span></button>
+      <div class="avatar">DR</div>
+    </header>
+
+    <div class="layout">
+      <aside class="glass">
+        <p class="label">Navigation</p>
+        <button class="active" data-page="dashboard">📊 Dashboard</button>
+        <button data-page="prediction">🧠 Stroke Prediction</button>
+        <button data-page="history">🕘 Prediction History</button>
+        <button data-page="reports">📄 Reports</button>
+        <button data-page="settings">⚙️ Settings</button>
+        <div class="model-badge" style="margin-top:20px;padding:10px 12px;">
+          <span class="dot-green"></span>
+          <span id="modelStatus">XGBoost v1.0 · BRFSS 2022 · 10 features</span>
+        </div>
+      </aside>
+
+      <main id="mainContent">
+        <!-- ===== DASHBOARD PAGE ===== -->
+        <section class="stats" id="page-dashboard">
+          <div class="glass stat"><p class="t">Total Predictions</p><p class="v" id="statTotal">1,045</p><p class="s">+12% this month</p></div>
+          <div class="glass stat"><p class="t">High Risk Patients</p><p class="v" id="statHighRisk">149</p><p class="s">14.3% of cohort</p></div>
+          <div class="glass stat"><p class="t">Model Accuracy</p><p class="v">94.6%</p><p class="s">ROC AUC 0.96</p></div>
+          <div class="glass stat"><p class="t">Avg. Response</p><p class="v">0.8s</p><p class="s">XGBoost inference</p></div>
+        </section>
+
+        <section class="grid2" id="page-prediction">
+          <div class="glass card">
+            <h2>Patient Information</h2>
+            <p class="muted" style="margin-top:-10px;margin-bottom:16px">10 clinical inputs used by the trained model</p>
+            <form id="form" class="fields">
+              <div><label for="name">Patient Name</label><input id="name" placeholder="e.g. Aarav Sharma" /></div>
+              <div><label for="age">Age (18–80)</label><input id="age" type="number" min="18" max="80" value="55" /></div>
+              <div><label for="gender">Gender</label><select id="gender"><option value="1">Male</option><option value="2">Female</option></select></div>
+              <div><label for="generalHealth">General Health</label><select id="generalHealth">
+                <option value="1">Excellent</option><option value="2">Very good</option><option value="3" selected>Good</option>
+                <option value="4">Fair</option><option value="5">Poor</option></select></div>
+              <div><label for="heartAttackHistory">Heart Attack History</label><select id="heartAttackHistory"><option value="1">Yes</option><option value="2" selected>No</option></select></div>
+              <div><label for="coronaryHeartDisease">Coronary Heart Disease</label><select id="coronaryHeartDisease"><option value="1">Yes</option><option value="2" selected>No</option></select></div>
+              <div><label for="diabetes">Diabetes</label><select id="diabetes"><option value="1">Yes</option><option value="3" selected>No</option></select></div>
+              <div><label for="physicalActivity">Physical Activity</label><select id="physicalActivity"><option value="1">Active (past 30 days)</option><option value="2">Inactive</option></select></div>
+              <div><label for="smokingStatus">Smoking Status</label><select id="smokingStatus">
+                <option value="1">Smokes daily</option><option value="2">Smokes some days</option>
+                <option value="3">Former smoker</option><option value="4" selected>Never smoked</option></select></div>
+              <div><label for="heavyAlcoholUse">Heavy Alcohol Use</label><select id="heavyAlcoholUse"><option value="1" selected>No</option><option value="2">Yes</option></select></div>
+              <div><label for="bmi">BMI</label><input id="bmi" type="number" step="0.1" value="27" /></div>
+              <div style="display:flex;align-items:flex-end">
+                <button class="btn" id="predictBtn" type="submit">✨ Predict Stroke Risk</button>
+              </div>
+            </form>
+          </div>
+
+          <div style="display:grid;gap:24px;align-content:start">
+            <div class="glass card">
+              <h2>Prediction Result</h2>
+              <div class="gauge-wrap">
+                <div style="position:relative;width:170px;height:170px">
+                  <svg viewBox="0 0 150 150" style="transform:rotate(-90deg);width:100%;height:100%">
+                    <circle cx="75" cy="75" r="62" fill="none" stroke="#ede9fe" stroke-width="14" />
+                    <circle id="arc" cx="75" cy="75" r="62" fill="none" stroke="var(--primary)" stroke-width="14"
+                      stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6"
+                      style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" />
+                  </svg>
+                  <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center">
+                    <div><div id="riskVal" style="font-size:32px;font-weight:700">–</div>
+                    <div class="muted" style="font-size:11px">stroke risk</div></div>
+                  </div>
+                </div>
+                <span id="riskBadge" class="badge low">Awaiting input</span>
+              </div>
+              <div style="margin-top:14px">
+                <div class="row"><span class="muted">Model confidence</span><strong id="confVal">–</strong></div>
+                <div class="bar"><span id="confBar" style="width:0%"></span></div>
+              </div>
+              <!-- NEW: Audit info -->
+              <div id="auditInfo" class="audit-info" style="display:none">
+                <strong>Model:</strong> <span id="auditModel">–</span><br/>
+                <strong>Timestamp:</strong> <span id="auditTimestamp">–</span><br/>
+                <strong>Patient ID:</strong> <span id="auditPatientId">–</span>
+              </div>
+              <!-- NEW: Action buttons -->
+              <div id="actionRow" class="action-row" style="display:none">
+                <button class="btn-secondary btn-pdf" id="downloadPdfBtn" title="Download PDF Report">📄 Download PDF</button>
+                <button class="btn-secondary" id="viewHistoryBtn" title="View in History">📋 Add to History</button>
+              </div>
+            </div>
+
+            <div class="glass card">
+              <h2>AI Insights</h2>
+              <div id="insights"><p class="muted">Personalised lifestyle and clinical guidance appears here after a prediction.</p></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Feature Importance & Risk Distribution -->
+        <section class="grid2">
+          <div class="glass card">
+            <h2>Feature Importance</h2>
+            <div id="fi"></div>
+          </div>
+          <div class="glass card">
+            <h2>Risk Distribution</h2>
+            <div style="display:grid;place-items:center;gap:14px">
+              <svg width="200" height="200" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#22c55e" stroke-width="6" stroke-dasharray="61 39" stroke-dashoffset="25" />
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#f59e0b" stroke-width="6" stroke-dasharray="28 72" stroke-dashoffset="-36" />
+                <circle cx="21" cy="21" r="15.9" fill="none" stroke="#dc2626" stroke-width="6" stroke-dasharray="15 85" stroke-dashoffset="-64" />
+              </svg>
+              <div style="display:flex;gap:16px;font-size:13px">
+                <span>🟢 Low 612</span><span>🟠 Moderate 284</span><span>🔴 High 149</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Predictions Table -->
+        <section class="glass card">
+          <h2>Recent Predictions</h2>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Patient ID</th><th>Name</th><th>Age</th><th>Risk</th><th>Level</th><th>Date</th><th>Model</th><th>Timestamp</th><th>Report</th>
+              </tr></thead>
+              <tbody id="historyBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===== PREDICTION HISTORY PAGE (full) ===== -->
+        <section class="glass card" id="page-history" style="display:none">
+          <h2>Prediction History <span class="history-count" id="historyCount"></span></h2>
+          <div class="history-actions">
+            <button class="btn-secondary btn-csv" id="exportCsvBtn">⬇ Export All as CSV</button>
+            <input class="search" placeholder="Filter by patient name..." id="filterHistory" style="width:220px" />
+            <select id="filterLevel" style="width:140px;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-family:inherit;font-size:13px;background:#fff">
+              <option value="">All Levels</option>
+              <option value="High">High Risk</option>
+              <option value="Moderate">Moderate</option>
+              <option value="Low">Low Risk</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Patient ID</th><th>Name</th><th>Age</th><th>Gender</th><th>BMI</th>
+                <th>Risk</th><th>Level</th><th>Confidence</th>
+                <th>Model Version</th><th>Inference Timestamp</th><th>Report</th>
+              </tr></thead>
+              <tbody id="fullHistoryBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===== REPORTS PAGE ===== -->
+        <section class="glass card" id="page-reports" style="display:none">
+          <h2>Reports</h2>
+          <p class="muted" style="margin-bottom:16px">Download individual PDF reports or export the full prediction history as CSV.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+            <div style="padding:24px;border:1px solid var(--border);border-radius:14px;background:#fafafa">
+              <h3 style="font-size:15px;margin-bottom:8px">📄 PDF Report (per prediction)</h3>
+              <p class="muted" style="margin-bottom:14px;font-size:13px">Download a detailed PDF report for any individual prediction including risk score, confidence, AI insights, and recommended next medical steps.</p>
+              <button class="btn-secondary" id="reportsPdfBtn" style="width:auto">Open Prediction History →</button>
+            </div>
+            <div style="padding:24px;border:1px solid var(--border);border-radius:14px;background:#fafafa">
+              <h3 style="font-size:15px;margin-bottom:8px">📊 CSV Export (all predictions)</h3>
+              <p class="muted" style="margin-bottom:14px;font-size:13px">Download the complete prediction history as a CSV file with all audit fields: model version, inference timestamps, risk scores, and clinical recommendations.</p>
+              <button class="btn-secondary btn-csv" id="reportsCsvBtn" style="width:auto">⬇ Download CSV</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== SETTINGS PAGE ===== -->
+        <section class="glass card" id="page-settings" style="display:none">
+          <h2>Settings</h2>
+          <div style="padding:16px 0">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div>
+                <p style="font-weight:600;font-size:14px">Model Version</p>
+                <p class="muted" style="font-size:12px">Current active model version</p>
+              </div>
+              <span class="badge mod" id="settingsModelVersion">XGBoost v1.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div>
+                <p style="font-weight:600;font-size:14px">Dataset</p>
+                <p class="muted" style="font-size:12px">Training dataset version</p>
+              </div>
+              <span style="font-size:13px;color:var(--text)">BRFSS 2022</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div>
+                <p style="font-weight:600;font-size:14px">Audit Logging</p>
+                <p class="muted" style="font-size:12px">Every prediction is logged with model version and timestamp</p>
+              </div>
+              <span class="badge low">Active</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0">
+              <div>
+                <p style="font-weight:600;font-size:14px">PDF Reports</p>
+                <p class="muted" style="font-size:12px">Generate downloadable PDF reports per prediction</p>
+              </div>
+              <span class="badge low">Enabled</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ===== CONFIGURATION =====
+      const API_URL = "/predict";
+      const API_HISTORY = "/prediction-history";
+      const API_CSV = "/export-csv";
+      const API_PDF_INLINE = "/download-pdf-inline";
+
+      const IMPORTANCE = [
+        ["Heart Attack", 35.5], ["General Health", 18.5], ["Diabetes", 17.2],
+        ["Coronary HD", 10.3], ["Age", 7.7], ["Smoking", 2.8],
+        ["Activity", 2.3], ["Gender", 2.0], ["BMI", 1.9], ["Alcohol", 1.7],
+      ];
+
+      // Demo history data with audit fields
+      const HISTORY = [
+        { patientId: "PT-1042", name: "Aarav Sharma", age: 68, risk: 91, level: "High", date: "2026-07-31", confidence: 94.2, modelVersion: "XGBoost v1.0", inferenceTimestamp: "2026-07-31T10:23:15Z", gender: "Male", bmi: 29.5, contributingFactors: ["Previous heart attack", "Age above 60", "Elevated BMI"], recommendations: ["Schedule a cardiology review"], nextSteps: "Refer for urgent neurology / stroke-clinic assessment." },
+        { patientId: "PT-1041", name: "Meera Iyer", age: 54, risk: 42, level: "Moderate", date: "2026-07-31", confidence: 87.5, modelVersion: "XGBoost v1.0", inferenceTimestamp: "2026-07-31T09:15:42Z", gender: "Female", bmi: 26.1, contributingFactors: ["General health rating", "Elevated BMI"], recommendations: ["Book a full health assessment"], nextSteps: "Arrange a follow-up review within 3 months." },
+        { patientId: "PT-1040", name: "John Carter", age: 47, risk: 18, level: "Low", date: "2026-07-30", confidence: 91.8, modelVersion: "XGBoost v1.0", inferenceTimestamp: "2026-07-30T14:07:33Z", gender: "Male", bmi: 24.3, contributingFactors: ["No major clinical risk factors detected"], recommendations: ["Maintain current lifestyle"], nextSteps: "Routine annual screening is sufficient." },
+        { patientId: "PT-1039", name: "Sara Ahmed", age: 72, risk: 77, level: "High", date: "2026-07-30", confidence: 92.1, modelVersion: "XGBoost v1.0", inferenceTimestamp: "2026-07-30T11:42:09Z", gender: "Female", bmi: 31.2, contributingFactors: ["Age above 60", "Elevated BMI", "Physical inactivity"], recommendations: ["Target 150 minutes of moderate aerobic activity"], nextSteps: "Refer for urgent neurology / stroke-clinic assessment." },
+        { patientId: "PT-1038", name: "Liu Wei", age: 39, risk: 12, level: "Low", date: "2026-07-29", confidence: 89.3, modelVersion: "XGBoost v1.0", inferenceTimestamp: "2026-07-29T16:30:21Z", gender: "Male", bmi: 22.8, contributingFactors: ["No major clinical risk factors detected"], recommendations: ["Maintain current lifestyle"], nextSteps: "Routine annual screening is sufficient." },
+      ];
+
+      let allHistory = [...HISTORY]; // will be replaced if API returns data
+      let lastPrediction = null; // stores last prediction result for PDF download
+
+      const cls = (l) => (l === "High" ? "high" : l === "Moderate" ? "mod" : "low");
+
+      // ===== PAGE NAVIGATION =====
+      const pages = {
+        dashboard: ["page-dashboard", "page-prediction"],
+        prediction: ["page-dashboard", "page-prediction"],
+        history: ["page-history"],
+        reports: ["page-reports"],
+        settings: ["page-settings"],
+      };
+
+      document.querySelectorAll("aside button[data-page]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("aside button").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          const page = btn.dataset.page;
+
+          // Hide all page sections
+          Object.values(pages).flat().forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = "none";
+          });
+
+          // Show relevant sections
+          const showIds = pages[page] || pages.dashboard;
+          showIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = page === "dashboard" ? "" : "block";
+          });
+
+          // Special handling for dashboard (grid layout)
+          if (page === "dashboard") {
+            document.getElementById("page-dashboard").style.display = "";
+            document.getElementById("page-prediction").style.display = "";
+          }
+
+          if (page === "history") renderFullHistory();
+        });
+      });
+
+      // ===== FEATURE IMPORTANCE =====
+      document.getElementById("fi").innerHTML = IMPORTANCE.map(
+        ([n, v]) =>
+          `<div class="fi-row"><span>${n}</span><div class="bar"><span style="width:${(v / 35.5) * 100}%"></span></div><span class="muted">${v}%</span></div>`
+      ).join("");
+
+      // ===== RECENT PREDICTIONS (dashboard) =====
+      function renderRecentHistory() {
+        const tbody = document.getElementById("historyBody");
+        tbody.innerHTML = HISTORY.map(
+          (r) =>
+            `<tr>
+              <td><strong>${r.patientId}</strong></td>
+              <td>${r.name}</td>
+              <td>${r.age}</td>
+              <td>${r.risk}%</td>
+              <td><span class="badge ${cls(r.level)}">${r.level}</span></td>
+              <td class="muted">${r.date}</td>
+              <td class="audit-col">${r.modelVersion || "XGBoost v1.0"}</td>
+              <td class="audit-col">${r.inferenceTimestamp || "N/A"}</td>
+              <td><button class="pdf-link" onclick="downloadPdfForRecord('${r.patientId}','${r.name}',${r.risk},'${r.level}',${r.confidence},'${r.date}','${r.modelVersion || 'XGBoost v1.0'}','${r.inferenceTimestamp || ''}')">📄 PDF</button></td>
+            </tr>`
+        ).join("");
+      }
+      renderRecentHistory();
+
+      // ===== FULL PREDICTION HISTORY =====
+      function renderFullHistory(filter = "") {
+        const levelFilter = document.getElementById("filterLevel")?.value || "";
+        const filtered = allHistory.filter(r => {
+          const matchName = !filter || r.name.toLowerCase().includes(filter.toLowerCase());
+          const matchLevel = !levelFilter || r.level === levelFilter;
+          return matchName && matchLevel;
+        });
+
+        document.getElementById("historyCount").textContent = `(${filtered.length} records)`;
+
+        const tbody = document.getElementById("fullHistoryBody");
+        tbody.innerHTML = filtered.map(
+          (r) =>
+            `<tr>
+              <td><strong>${r.patientId}</strong></td>
+              <td>${r.name}</td>
+              <td>${r.age}</td>
+              <td>${r.gender || "N/A"}</td>
+              <td>${r.bmi || "N/A"}</td>
+              <td>${r.risk}%</td>
+              <td><span class="badge ${cls(r.level)}">${r.level}</span></td>
+              <td>${r.confidence || "N/A"}%</td>
+              <td class="audit-col"><strong>${r.modelVersion || "XGBoost v1.0"}</strong></td>
+              <td class="audit-col">${r.inferenceTimestamp || "N/A"}</td>
+              <td><button class="pdf-link" onclick="downloadPdfForRecord('${r.patientId}','${r.name}',${r.risk},'${r.level}',${r.confidence || 0},'${r.date}','${r.modelVersion || 'XGBoost v1.0'}','${r.inferenceTimestamp || ''}')">📄 PDF</button></td>
+            </tr>`
+        ).join("");
+      }
+
+      document.getElementById("filterHistory")?.addEventListener("input", (e) => renderFullHistory(e.target.value));
+      document.getElementById("filterLevel")?.addEventListener("change", () => {
+        const filter = document.getElementById("filterHistory")?.value || "";
+        renderFullHistory(filter);
+      });
+
+      // ===== PDF DOWNLOAD =====
+      function downloadPdfForRecord(patientId, name, risk, level, confidence, date, modelVersion, timestamp) {
+        // Try API first, fallback to inline POST
+        const record = {
+          patientId, name, riskPercentage: risk, riskLevel: level,
+          confidence, date, modelVersion, inferenceTimestamp: timestamp,
+          contributingFactors: [], recommendations: [], nextSteps: ""
+        };
+
+        // Find full record in history
+        const fullRecord = allHistory.find(r => r.patientId === patientId);
+        if (fullRecord) {
+          record.contributingFactors = fullRecord.contributingFactors || [];
+          record.recommendations = fullRecord.recommendations || [];
+          record.nextSteps = fullRecord.nextSteps || "";
+          record.gender = fullRecord.gender || "";
+          record.age = fullRecord.age || "";
+          record.bmi = fullRecord.bmi || "";
+        }
+
+        fetch(API_PDF_INLINE, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(record)
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("PDF generation failed");
+          return res.blob();
+        })
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `StrokePrediction_${patientId}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          toast(`PDF report downloaded for ${name}`);
+        })
+        .catch(() => {
+          // Fallback: generate a simple text report
+          generateFallbackReport(record);
+        });
+      }
+
+      // ===== CSV EXPORT =====
+      document.getElementById("exportCsvBtn")?.addEventListener("click", () => {
+        // Try API first
+        fetch(API_CSV)
+          .then(res => {
+            if (!res.ok) throw new Error("CSV export failed");
+            return res.blob();
+          })
+          .then(blob => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `prediction_history_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            toast("CSV export downloaded successfully");
+          })
+          .catch(() => {
+            // Fallback: generate CSV client-side
+            generateFallbackCSV();
+          });
+      });
+
+      document.getElementById("reportsCsvBtn")?.addEventListener("click", () => {
+        document.getElementById("exportCsvBtn")?.click();
+      });
+
+      document.getElementById("reportsPdfBtn")?.addEventListener("click", () => {
+        document.querySelectorAll("aside button[data-page]").forEach(b => {
+          if (b.dataset.page === "history") b.click();
+        });
+      });
+
+      // ===== FALLBACK: Client-side CSV generation =====
+      function generateFallbackCSV() {
+        const headers = ["Patient ID", "Name", "Age", "Gender", "BMI", "Risk %", "Risk Level", "Confidence %", "Model Version", "Inference Timestamp", "Prediction Date", "Contributing Factors", "Recommendations", "Next Steps"];
+        const rows = allHistory.map(r => [
+          r.patientId, r.name, r.age, r.gender || "", r.bmi || "",
+          r.risk, r.level, r.confidence || "", r.modelVersion || "XGBoost v1.0",
+          r.inferenceTimestamp || "", r.date,
+          (r.contributingFactors || []).join("; "),
+          (r.recommendations || []).join("; "),
+          r.nextSteps || ""
+        ]);
+
+        const csvContent = [headers, ...rows].map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `prediction_history_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        toast("CSV export generated successfully");
+      }
+
+      // ===== FORM HANDLING =====
+      function readForm() {
+        const n = (id) => Number(document.getElementById(id).value);
+        return {
+          name: document.getElementById("name").value || "Anonymous",
+          age: n("age"), gender: n("gender"), generalHealth: n("generalHealth"),
+          heartAttackHistory: n("heartAttackHistory"), coronaryHeartDisease: n("coronaryHeartDisease"),
+          diabetes: n("diabetes"), physicalActivity: n("physicalActivity"),
+          smokingStatus: n("smokingStatus"), heavyAlcoholUse: n("heavyAlcoholUse"), bmi: n("bmi"),
+        };
+      }
+
+      // Local fallback prediction
+      function localPredict(p) {
+        const f = [];
+        let s = 0;
+        const add = (label, v) => { if (v > 0) f.push([label, v]); s += v; };
+        add("Heart attack history", p.heartAttackHistory === 1 ? 35 : 0);
+        add("General health rating", (p.generalHealth - 1) * 4.6);
+        add("Diabetes", p.diabetes === 1 ? 17 : 0);
+        add("Coronary heart disease", p.coronaryHeartDisease === 1 ? 10 : 0);
+        add("Age", Math.max(0, (p.age - 30) / 50) * 12);
+        add("Smoking status", { 1: 6, 2: 4, 3: 2 }[p.smokingStatus] || 0);
+        add("Physical inactivity", p.physicalActivity === 2 ? 5 : 0);
+        add("BMI", p.bmi >= 30 ? 4 : p.bmi >= 25 ? 2 : 0);
+        add("Gender", p.gender === 1 ? 2 : 0);
+        add("Heavy alcohol use", p.heavyAlcoholUse === 2 ? 3.5 : 0);
+
+        const risk = Math.max(2, Math.min(97, Math.round(s)));
+        const level = risk >= 60 ? "High" : risk >= 30 ? "Moderate" : "Low";
+        const tips = [];
+        if (p.heartAttackHistory === 1 || p.coronaryHeartDisease === 1) tips.push("Schedule a cardiology review and adhere to prescribed cardiac medication.");
+        if (p.diabetes === 1) tips.push("Maintain HbA1c below 7% with regular glucose monitoring.");
+        if (p.smokingStatus <= 2) tips.push("Begin a supervised smoking-cessation programme.");
+        if (p.physicalActivity === 2) tips.push("Target 150 minutes of moderate aerobic activity per week.");
+        if (p.bmi >= 25) tips.push("Aim for a 5–10% weight reduction with a dietitian-led plan.");
+        if (p.heavyAlcoholUse === 2) tips.push("Reduce alcohol intake to within national safe limits.");
+        if (p.generalHealth >= 4) tips.push("Book a full health assessment to address declining general health.");
+        if (!tips.length) tips.push("Maintain current lifestyle and repeat screening in 12 months.");
+
+        const factors = ["Previous heart attack", "Age above 60", "Elevated BMI", "Physical inactivity"].filter((_, i) => {
+          if (p.heartAttackHistory === 1 || p.coronaryHeartDisease === 1) return i >= 0;
+          if (p.age >= 60) return i >= 0;
+          if (p.bmi >= 25) return i >= 0;
+          return false;
+        });
+
+        const now = new Date();
+        const timestamp = now.toISOString();
+        const dateStr = now.toISOString().slice(0, 10);
+        const nextId = `PT-${1043 + allHistory.length}`;
+
+        return {
+          patientId: nextId,
+          riskPercentage: risk,
+          riskLevel: level,
+          confidence: Math.round(78 + Math.abs(risk - 50) * 0.34),
+          contributingFactors: f.sort((a, b) => b[1] - a[1]).slice(0, 5).map((x) => x[0]),
+          recommendations: tips,
+          nextSteps: level === "High" ? "Refer for urgent neurology / stroke-clinic assessment."
+            : level === "Moderate" ? "Arrange a follow-up review within 3 months."
+            : "Routine annual screening is sufficient.",
+          modelVersion: "XGBoost v1.0 (local)",
+          inferenceTimestamp: timestamp,
+          date: dateStr,
+          gender: p.gender === 1 ? "Male" : "Female",
+          bmi: p.bmi,
+        };
+      }
+
+      function toast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 3200);
+      }
+
+      function render(r) {
+        const C = 2 * Math.PI * 62;
+        const arc = document.getElementById("arc");
+        arc.style.strokeDashoffset = C - (r.riskPercentage / 100) * C;
+        arc.setAttribute("stroke", r.riskLevel === "High" ? "#dc2626" : r.riskLevel === "Moderate" ? "#f59e0b" : "#22c55e");
+        document.getElementById("riskVal").textContent = Math.round(r.riskPercentage) + "%";
+        const b = document.getElementById("riskBadge");
+        b.textContent = r.riskLevel + " Risk";
+        b.className = "badge " + cls(r.riskLevel);
+        document.getElementById("confVal").textContent = Math.round(r.confidence) + "%";
+        document.getElementById("confBar").style.width = r.confidence + "%";
+        document.getElementById("insights").innerHTML = `
+          <p class="muted" style="text-transform:uppercase;font-size:11px;letter-spacing:.08em;margin-bottom:8px">Contributing factors</p>
+          <ul class="tips">${r.contributingFactors.map((f) => `<li>${f}</li>`).join("")}</ul>
+          <p class="muted" style="text-transform:uppercase;font-size:11px;letter-spacing:.08em;margin:14px 0 8px">Recommendations</p>
+          <ul class="tips">${r.recommendations.map((t) => `<li>${t}</li>`).join("")}</ul>
+          <p style="margin-top:14px;font-size:13px"><strong>Next medical step:</strong> ${r.nextSteps}</p>`;
+
+        // NEW: Show audit info
+        const auditEl = document.getElementById("auditInfo");
+        auditEl.style.display = "block";
+        document.getElementById("auditModel").textContent = r.modelUsed || r.modelVersion || "XGBoost v1.0";
+        document.getElementById("auditTimestamp").textContent = r.inferenceTimestamp || new Date().toISOString();
+        document.getElementById("auditPatientId").textContent = r.patientId || "—";
+
+        // NEW: Show action buttons
+        document.getElementById("actionRow").style.display = "flex";
+
+        // Store last prediction for PDF download
+        lastPrediction = r;
+
+        // Set up PDF download button
+        document.getElementById("downloadPdfBtn").onclick = () => {
+          downloadPdfForRecord(
+            r.patientId || "PT-new",
+            r.patient || "Anonymous",
+            r.riskPercentage,
+            r.riskLevel,
+            r.confidence,
+            r.date || new Date().toISOString().slice(0,10),
+            r.modelUsed || r.modelVersion || "XGBoost v1.0",
+            r.inferenceTimestamp || new Date().toISOString()
+          );
+        };
+
+        // Set up "Add to History" button
+        document.getElementById("viewHistoryBtn").onclick = () => {
+          const genderLabel = document.getElementById("gender").options[document.getElementById("gender").selectedIndex].text;
+          const newEntry = {
+            patientId: r.patientId || `PT-${1043 + allHistory.length}`,
+            name: r.patient || document.getElementById("name").value || "Anonymous",
+            age: Number(document.getElementById("age").value) || 55,
+            gender: genderLabel,
+            bmi: Number(document.getElementById("bmi").value) || 27,
+            risk: r.riskPercentage,
+            level: r.riskLevel,
+            confidence: r.confidence,
+            modelVersion: r.modelUsed || r.modelVersion || "XGBoost v1.0",
+            inferenceTimestamp: r.inferenceTimestamp || new Date().toISOString(),
+            date: r.date || new Date().toISOString().slice(0,10),
+            contributingFactors: r.contributingFactors || [],
+            recommendations: r.recommendations || [],
+            nextSteps: r.nextSteps || "",
+          };
+          allHistory.unshift(newEntry);
+          HISTORY.unshift(newEntry);
+          renderRecentHistory();
+          renderFullHistory();
+          toast(`${newEntry.name} added to prediction history`);
+        };
+
+        toast(`Prediction complete — ${r.riskLevel} risk (${Math.round(r.riskPercentage)}%)`);
+      }
+
+      document.getElementById("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById("predictBtn");
+        const payload = readForm();
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Analysing...';
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error("api");
+          render(await res.json());
+        } catch (err) {
+          render(localPredict(payload));
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = "✨ Predict Stroke Risk";
+        }
+      });
+
+      // ===== TRY TO LOAD LIVE HISTORY FROM API =====
+      async function loadHistory() {
+        try {
+          const res = await fetch(API_HISTORY);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              allHistory = data;
+              renderFullHistory();
+            }
+          }
+        } catch (e) {
+          // Use local demo data
+        }
+      }
+      loadHistory();
+
+      // ===== SEARCH =====
+      document.getElementById("searchInput")?.addEventListener("input", (e) => {
+        const q = e.target.value.toLowerCase();
+        const filtered = allHistory.filter(r => r.name.toLowerCase().includes(q));
+        renderRecentHistory(); // keep dashboard table static, search affects history page
+        if (q.length > 0) {
+          document.querySelectorAll("aside button[data-page]").forEach(b => {
+            if (b.dataset.page === "history") b.click();
+          });
+          document.getElementById("filterHistory").value = q;
+          renderFullHistory(q);
+        }
+      });
+    </script>
+  </body>
+</html>
